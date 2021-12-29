@@ -12,20 +12,12 @@ class Simulation:
         return fitnesses
     
     def calculate_diversity_score_array(self, agents): #This takes >10x longer than the rest of the code combined. Figure out a way to optimize it.
-        uniqueness = []
-        for agent in agents:
-            #dists = np.mean(np.linalg.norm(agents-agent, axis=1))
-            dists = np.sum([agent != x for x in agents])                 #This calculates aaverage inequality between agents
-            #dists = np.array([np.linalg.norm(agent-x) for x in agents])  #This calculates distance from mean
-            if np.any(dists):
-                uniqueness.append(min(dists[dists != 0]))
-            else:
-                uniqueness.append(0)
-            
-        return np.array(uniqueness)
-        #Old Code: Probably cheaper though
-        #return np.array([self.distance(np.mean(agents, axis=0), agent) for agent in agents])
-
+        if np.all(np.equal.reduce(agents, axis=0)):   #Check to make sure not all agents are the same
+            return np.zeros(shape = agents.shape[0])
+        
+        return np.array([np.mean(np.linalg.norm(agents-agent, axis=1)) for agent in agents])
+        #return np.array([np.mean(np.equal(agents, agent)) for agent in agents])
+        
     def calculate_reproduction_chance(self, population, value_uniqueness = 0.5):
         fitnesses = self.calculate_fitness_array(population.agents, population.points)
         non_norm_fitnesses = np.copy(fitnesses)
